@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Animator/Select SubState")]
+[System.Serializable]
 public class SelectSubState : StateMachineAction
 {
 	public int ChildStates = 0;

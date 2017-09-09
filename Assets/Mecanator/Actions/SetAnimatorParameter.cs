@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Animator/Set Animator Paramter")]
+[System.Serializable]
 public class SetAnimatorParameter : StateMachineAction
 {
 	public string ParameterName;

@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class OnStateMachineExitHandler : StateMachineBehaviour
+public class OnStateMachineExitHandler : StateMachineHandler
 {
-	public StateMachineAction[] Actions;
-
 	public override void OnStateMachineExit (Animator animator, int stateMachinePathHash)
 	{
 		base.OnStateMachineExit (animator, stateMachinePathHash);

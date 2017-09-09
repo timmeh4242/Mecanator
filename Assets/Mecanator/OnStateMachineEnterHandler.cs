@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class OnStateMachineEnterHandler : StateMachineBehaviour
+public class OnStateMachineEnterHandler : StateMachineHandler
 {
-	public StateMachineAction[] Actions;
-
 	public override void OnStateMachineEnter (Animator animator, int stateMachinePathHash)
 	{
 		base.OnStateMachineEnter (animator, stateMachinePathHash);
