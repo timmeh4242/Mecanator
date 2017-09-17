@@ -43,7 +43,7 @@ public class ParameterRandomizer : MonoBehaviour, IDisposable, IDisposableContai
 
 		var delay = TimeSpan.FromSeconds (Delay);
 		var interval = TimeSpan.FromSeconds (Interval);
-		IntervalRoutine = Observable.Timer (delay, interval).Subscribe (_ =>
+        IntervalRoutine = Observable.Timer (delay, interval).Where(_ => gameObject.activeSelf).Subscribe (_ =>
 		{
 			var value = UnityEngine.Random.Range(Range.MinValue, Range.MaxValue);
 			this.Animator.SetInteger (ParamterHash, value);

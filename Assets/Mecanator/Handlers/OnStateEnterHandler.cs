@@ -8,7 +8,7 @@ public class OnStateEnterHandler : StateMachineHandler
 	{
 		base.OnStateEnter (animator, stateInfo, layerIndex);
 
-		var smao = new StateMachineActionObject () { Animator = animator, PathHash = stateInfo.fullPathHash };
+		var smao = new StateMachineActionObject() { Animator = animator, PathHash = stateInfo.fullPathHash, StateInfo = stateInfo, LayerIndex = layerIndex };
 		foreach (var action in Actions)
 		{
 			action.Execute (smao);

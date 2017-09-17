@@ -1,12 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 [System.Serializable]
-public class SetAnimatorParameter : StateMachineAction
+public class SetIntParameter : StateMachineAction
 {
 	public string ParameterName;
+
 	public int Value;
+    public RangedInt RangedValue;
 
 	private int ParameterHash;
 
@@ -17,6 +20,7 @@ public class SetAnimatorParameter : StateMachineAction
 
     public override void Execute (StateMachineActionObject smao)
 	{
-		smao.Animator.SetInteger (ParameterHash, Value);
+        var value = Random.Range(RangedValue.MinValue, RangedValue.MaxValue);
+		smao.Animator.SetInteger (ParameterHash, value);
 	}
 }

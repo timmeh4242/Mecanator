@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 [System.Serializable]
 public class SelectSubState : StateMachineAction
@@ -10,15 +8,15 @@ public class SelectSubState : StateMachineAction
 
 	public bool IsRandom = false;
 
-//	private int ParameterHash;
+	private int ParameterHash;
 	private int State = 0;
 
-//	void Awake()
-//	{
-//		ParameterHash = Animator.StringToHash (ParameterName);
-//	}
+    private void OnEnable()
+    {
+        ParameterHash = Animator.StringToHash(ParameterName);
+    }
 
-	public override void Execute (StateMachineActionObject smao)
+    public override void Execute (StateMachineActionObject smao)
 	{
 		if (IsRandom == true)
 		{
@@ -31,6 +29,6 @@ public class SelectSubState : StateMachineAction
 			{ State = 0; }
 		}
 
-		smao.Animator.SetInteger (ParameterName, State);
+		smao.Animator.SetInteger (ParameterHash, State);
 	}
 }

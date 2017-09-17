@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 [System.Serializable]
-public class SetAnimatorParameter : StateMachineAction
+public class SetBoolParameter : StateMachineAction
 {
 	public string ParameterName;
-	public int Value;
+
+    public bool Value;
 
 	private int ParameterHash;
 
@@ -17,6 +19,6 @@ public class SetAnimatorParameter : StateMachineAction
 
     public override void Execute (StateMachineActionObject smao)
 	{
-		smao.Animator.SetInteger (ParameterHash, Value);
+        smao.Animator.SetBool (ParameterHash, Value);
 	}
 }

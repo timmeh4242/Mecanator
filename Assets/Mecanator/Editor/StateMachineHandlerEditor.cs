@@ -5,24 +5,111 @@ using UnityEditor;
 using System;
 using System.Linq;
 using UniRx;
+using UnityEditorInternal;
 
 [CustomEditor(typeof(StateMachineHandler), true)]
 public class StateMachineHandlerEditor : Editor
 {
-	private StateMachineHandler handler;
+    private StateMachineHandler handler;
 
-	private bool showActions = true;
+    private ReorderableList reorderableActions;
 
-	private readonly IEnumerable<Type> allComponentTypes = AppDomain.CurrentDomain.GetAssemblies()
-						.SelectMany(s => s.GetTypes())
-						.Where(p => typeof(StateMachineAction).IsAssignableFrom(p) && p.IsClass);
+    private bool showActions = true;
+
+    private readonly IEnumerable<Type> allComponentTypes = AppDomain.CurrentDomain.GetAssemblies()
+                        .SelectMany(s => s.GetTypes())
+                        .Where(p => typeof(StateMachineAction).IsAssignableFrom(p) && p.IsClass);
+
+    int lineHeight = 15;
+    int lineSpacing = 18;
+   
+    private class ActionInfo
+    {
+        public Type type;
+    }
 
 	void OnEnable()
 	{
-		hideFlags = HideFlags.HideAndDontSave;
+		//hideFlags = HideFlags.HideAndDontSave;
 
 		if (handler == null)
 		{ handler = (StateMachineHandler)target; }
+
+        reorderableActions = new ReorderableList(serializedObject, serializedObject.FindProperty("Actions"), true, true, true, true);
+
+        reorderableActions.drawHeaderCallback = (Rect rect) =>
+        {
+            EditorGUI.LabelField(rect, "Actions", EditorStyles.boldLabel);
+        };
+
+        reorderableActions.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
+        {
+			var element = reorderableActions.serializedProperty.GetArrayElementAtIndex(index);
+            var so = new SerializedObject(element.objectReferenceValue);
+            so.Update();
+
+            EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width, lineHeight), handler.Actions[index].GetType().ToString(), EditorStyles.boldLabel);
+
+			var iterator = so.GetIterator();
+            iterator.NextVisible(true); // skip the script reference
+
+			var i = 1;
+            var showChildren = true;
+            while (iterator.NextVisible(showChildren))
+			{
+				EditorGUI.PropertyField(new Rect(rect.x, rect.y + (lineSpacing * i), rect.width, lineHeight), iterator);
+				i++;
+                if(iterator.isArray)
+                {
+                    showChildren = iterator.isExpanded;
+                }
+			}
+
+            so.ApplyModifiedProperties();
+        };
+
+        reorderableActions.elementHeightCallback = (int index) =>
+        {
+            float height = 0;
+
+			var element = reorderableActions.serializedProperty.GetArrayElementAtIndex(index);
+			var elementObj = new SerializedObject(element.objectReferenceValue);
+
+			var iterator = elementObj.GetIterator();
+			var i = 1;
+			var showChildren = true;
+            while (iterator.NextVisible(showChildren))
+			{
+				i++;
+				if (iterator.isArray)
+				{
+					showChildren = iterator.isExpanded;
+				}
+			}
+
+            height = lineSpacing * i;
+            return height;
+        };
+
+        reorderableActions.onAddDropdownCallback = (Rect rect, ReorderableList list) =>
+		{
+            var dropdownMenu = new GenericMenu();
+			var types = allComponentTypes.Select(x => x.Name).ToArray();
+
+            for (var i = 0; i < types.Length; i++)
+            {
+                dropdownMenu.AddItem(new GUIContent(types[i]), false, AddAction, new ActionInfo() { type = allComponentTypes.ElementAt(i) });
+            }
+
+            dropdownMenu.ShowAsContext();
+		};
+
+        reorderableActions.onRemoveCallback = (list) => 
+        {
+            var action = handler.Actions[list.index];
+            DestroyImmediate(action, true);
+            handler.Actions.RemoveAt(list.index);
+        };
 	}
 
 	public override void OnInspectorGUI()
@@ -34,262 +121,47 @@ public class StateMachineHandlerEditor : Editor
 
 		if (handler == null) { return; }
 
-		DrawAddActions();
-		DrawActions();
-		PersistChanges();
-	}
+		//EditorGUI.LabelField(rect, "Actions", EditorStyles.boldLabel);
 
-	private void DrawAddActions()
-	{
-		this.UseVerticalBoxLayout(() =>
-		{
-			var types = allComponentTypes.Select(x => string.Format("{0} [{1}]", x.Name, x.Namespace)).ToArray();
-			var index = -1;
-			index = EditorGUILayout.Popup("Add Action", index, types);
-
-			if (index >= 0)
-			{
-                var action = (StateMachineAction)ScriptableObject.CreateInstance(allComponentTypes.ElementAt(index));
-				handler.Actions.Add(action);
-			}
-		});
-	}
-
-	private void DrawActions()
-	{
-		EditorGUILayout.BeginVertical(EditorExtensions.DefaultBoxStyle);
-		int numberOfActions = handler.Actions.Count;
-
-		this.WithHorizontalLayout(() =>
-		{
-			this.WithLabel("Actions (" + numberOfActions + ")");
-			if (showActions)
-			{
-				if (this.WithIconButton("▾"))
-				{
-					showActions = false;
-				}
-			}
-			else
-			{
-				if (this.WithIconButton("▸"))
-				{
-					showActions = true;
-				}
-			}
-		});
-
-		var actionsToRemove = new List<int>();
 		if (showActions)
 		{
-			for (var i = 0; i < handler.Actions.Count; i++)
-			{
-				this.UseVerticalBoxLayout(() =>
-				{
-					var actionType = handler.Actions[i].GetType();
-					//var actionType = handler.Actions[i].GetTypeWithAssembly();
-
-					var typeName = actionType == null ? "" : actionType.Name;
-					var typeNamespace = actionType == null ? "" : actionType.Namespace;
-
-					this.WithVerticalLayout(() =>
-					{
-						this.WithHorizontalLayout(() =>
-						{
-							if (this.WithIconButton("-"))
-							{
-								actionsToRemove.Add(i);
-							}
-
-							this.WithLabel(typeName);
-						});
-
-						EditorGUILayout.LabelField(typeNamespace);
-						EditorGUILayout.Space();
-					});
-
-					if (actionType == null)
-					{
-						//if (GUILayout.Button("TYPE NOT FOUND. TRY TO CONVERT TO BEST MATCH?"))
-						//{
-						//                   actionType = handler.Actions[i].TryGetConvertedType();
-						//  if (componentType == null)
-						//  {
-						//      Debug.LogWarning("UNABLE TO CONVERT " + _view.CachedComponents[i]);
-						//      return;
-						//  }
-						//  else
-						//  {
-						//      Debug.LogWarning("CONVERTED " + _view.CachedComponents[i] + " to " + componentType.ToString());
-						//  }
-						//}
-						//else
-						//{
-						//  return;
-						//}
-					}
-
-					DrawActionFields(handler.Actions[i]);
-					DrawActionProperties(handler.Actions[i]);
-				});
-			}
-
-			for (var i = 0; i < actionsToRemove.Count(); i++)
-			{
-				handler.Actions.RemoveAt(actionsToRemove[i]);
-			}
+            if (this.WithIconButton("▾"))
+            {
+              showActions = false;
+            }
 		}
-
-		EditorGUILayout.EndVertical();
-	}
-
-	private void DrawActionFields(StateMachineAction action)
-	{
-		foreach (var field in action.GetType().GetFields())
-		{
-			EditorGUILayout.BeginHorizontal();
-
-			var _type = field.FieldType;
-			var _value = field.GetValue(action);
-            var isTypeSupported = TryDrawValue(_type, ref _value, field.Name);
-
-			if (isTypeSupported == true)
-			{
-				field.SetValue(action, _value);
-			}
-
-			EditorGUILayout.EndHorizontal();
-		}
-	}
-
-	private void DrawActionProperties(StateMachineAction action)
-	{
-		foreach (var property in action.GetType().GetProperties())
-		{
-			EditorGUILayout.BeginHorizontal();
-
-			var _type = property.PropertyType;
-			var _value = property.GetValue(action, null);
-			var isTypeSupported = TryDrawValue(_type, ref _value, property.Name);
-
-			if (isTypeSupported == true)
-			{
-				property.SetValue(action, _value, null);
-			}
-
-			EditorGUILayout.EndHorizontal();
-		}
-	}
-
-	private bool TryDrawValue(Type _type, ref object _value, string _name)
-	{
-        if(_name == "hideFlags" || _name == "name")
-        {
-            return false;
-        }
-
-		if (_type == typeof(int))
-		{
-			_value = EditorGUILayout.IntField(_name, (int)_value);
-		}
-		else if (_type == typeof(IntReactiveProperty))
-		{
-			var reactiveProperty = _value as IntReactiveProperty;
-			reactiveProperty.Value = EditorGUILayout.IntField(_name, reactiveProperty.Value);
-		}
-		else if (_type == typeof(float))
-		{
-			_value = EditorGUILayout.FloatField(_name, (float)_value);
-		}
-		else if (_type == typeof(FloatReactiveProperty))
-		{
-			var reactiveProperty = _value as FloatReactiveProperty;
-			reactiveProperty.Value = EditorGUILayout.FloatField(_name, reactiveProperty.Value);
-		}
-		else if (_type == typeof(bool))
-		{
-			_value = EditorGUILayout.Toggle(_name, (bool)_value);
-		}
-		else if (_type == typeof(BoolReactiveProperty))
-		{
-			var reactiveProperty = _value as BoolReactiveProperty;
-			reactiveProperty.Value = EditorGUILayout.Toggle(_name, reactiveProperty.Value);
-		}
-		else if (_type == typeof(string))
-		{
-			_value = EditorGUILayout.TextField(_name, (string)_value);
-		}
-		else if (_type == typeof(StringReactiveProperty))
-		{
-			var reactiveProperty = _value as StringReactiveProperty;
-			reactiveProperty.Value = EditorGUILayout.TextField(_name, reactiveProperty.Value);
-		}
-		else if (_type == typeof(Vector2))
-		{
-			_value = EditorGUILayout.Vector2Field(_name, (Vector2)_value);
-		}
-		else if (_type == typeof(Vector2ReactiveProperty))
-		{
-			var reactiveProperty = _value as Vector2ReactiveProperty;
-			_value = EditorGUILayout.Vector2Field(_name, reactiveProperty.Value);
-		}
-		else if (_type == typeof(Vector3))
-		{
-			_value = EditorGUILayout.Vector3Field(_name, (Vector3)_value);
-		}
-		else if (_type == typeof(Vector3ReactiveProperty))
-		{
-			var reactiveProperty = _value as Vector3ReactiveProperty;
-			_value = EditorGUILayout.Vector2Field(_name, reactiveProperty.Value);
-		}
-		else if (_type == typeof(Color))
-		{
-			_value = EditorGUILayout.ColorField(_name, (Color)_value);
-		}
-		else if (_type == typeof(ColorReactiveProperty))
-		{
-			var reactiveProperty = _value as ColorReactiveProperty;
-			reactiveProperty.Value = EditorGUILayout.ColorField(_name, reactiveProperty.Value);
-		}
-		//else if (_type == typeof(Bounds))
-		//{
-		//  _value = EditorGUILayout.BoundsField(name, (Bounds)_value);
-		//}
-		//else if (_type == typeof(BoundsReactiveProperty))
-		//{
-		//  var reactiveProperty = _value as BoundsReactiveProperty;
-		//  reactiveProperty.Value = EditorGUILayout.BoundsField(name, reactiveProperty.Value);
-		//}
-		//else if (_type == typeof(Rect))
-		//{
-		//  _value = EditorGUILayout.RectField(name, (Rect)_value);
-		//}
-		//else if (_type == typeof(RectReactiveProperty))
-		//{
-		//  var reactiveProperty = _value as RectReactiveProperty;
-		//  reactiveProperty.Value = EditorGUILayout.RectField(name, reactiveProperty.Value);
-		//}
-		else if (_type == typeof(Enum))
-		{
-			_value = EditorGUILayout.EnumPopup(_name, (Enum)_value);
-		}
-		// else if (_type == typeof(Object))
-		// {
-		//  _value = EditorGUILayout.ObjectField(name, (Object)property.GetValue(), Object);
-		// }
 		else
 		{
-			Debug.LogWarning("This type is not supported: " + _type.Name + " - In action: " + _name);
-			//Debug.LogWarning("This type is not supported!");
-			return false;
-		}
+            if (this.WithIconButton("▸"))
+            {
+                showActions = true;
+            }
+        }
 
-		return true;
+		if (showActions)
+		{
+			serializedObject.Update();
+			Undo.RecordObject(handler, "Added Action");
+			reorderableActions.DoLayoutList();
+			PersistChanges();
+			serializedObject.ApplyModifiedProperties();
+		}
+	}
+
+    private void AddAction(object info)
+    {
+        var actionInfo = (ActionInfo)info;
+        var action = (StateMachineAction)ScriptableObject.CreateInstance(actionInfo.type);
+        action.name = actionInfo.type.Name;
+		AssetDatabase.AddObjectToAsset(action, handler);
+		handler.Actions.Add(action);
 	}
 
 	private void PersistChanges()
 	{
 		if (GUI.changed && !Application.isPlaying)
-		{ this.SaveActiveSceneChanges(); }
+		{
+            this.SaveActiveSceneChanges();
+        }
 	}
 }
