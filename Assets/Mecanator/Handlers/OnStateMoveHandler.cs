@@ -8,7 +8,9 @@ public class OnStateMoveHandler : StateMachineHandler
     {
         base.OnStateMove(animator, stateInfo, layerIndex);
 
-		var smao = new StateMachineActionObject() { Animator = animator, PathHash = stateInfo.fullPathHash, StateInfo = stateInfo, LayerIndex = layerIndex };
+		if (animator.GetLayerWeight (layerIndex) <= 0f && layerIndex > 0) { return; }
+
+		var smao = new StateMachineActionObject() { Animator = animator, PathHash = stateInfo.fullPathHash, StateInfo = stateInfo, LayerIndex = layerIndex, State = AnimatorState.Move };
 		foreach (var action in Actions)
 		{
 			action.Execute(smao);

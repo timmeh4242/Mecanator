@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using AlphaECS;
 using System;
 using System.Linq;
 using UniRx;
@@ -35,6 +36,9 @@ public class StateMachineHandlerEditor : Editor
 		if (handler == null)
 		{ handler = (StateMachineHandler)target; }
 
+		if (handler == null)
+		{ return; }
+
         reorderableActions = new ReorderableList(serializedObject, serializedObject.FindProperty("Actions"), true, true, true, true);
 
         reorderableActions.drawHeaderCallback = (Rect rect) =>
@@ -59,10 +63,10 @@ public class StateMachineHandlerEditor : Editor
 			{
 				EditorGUI.PropertyField(new Rect(rect.x, rect.y + (lineSpacing * i), rect.width, lineHeight), iterator);
 				i++;
-                if(iterator.isArray)
-                {
-                    showChildren = iterator.isExpanded;
-                }
+//                if(iterator.isArray)
+//                {
+//                    showChildren = iterator.isExpanded;
+//                }
 			}
 
             so.ApplyModifiedProperties();
@@ -81,10 +85,10 @@ public class StateMachineHandlerEditor : Editor
             while (iterator.NextVisible(showChildren))
 			{
 				i++;
-				if (iterator.isArray)
-				{
-					showChildren = iterator.isExpanded;
-				}
+//				if (iterator.isArray)
+//				{
+//					showChildren = iterator.isExpanded;
+//				}
 			}
 
             height = lineSpacing * i;
@@ -152,7 +156,7 @@ public class StateMachineHandlerEditor : Editor
     {
         var actionInfo = (ActionInfo)info;
         var action = (StateMachineAction)ScriptableObject.CreateInstance(actionInfo.type);
-        action.name = actionInfo.type.Name;
+		action.name = action.GetType ().ToString();
 		AssetDatabase.AddObjectToAsset(action, handler);
 		handler.Actions.Add(action);
 	}

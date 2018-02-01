@@ -8,7 +8,9 @@ public class OnStateExitHandler : StateMachineHandler
 	{
 		base.OnStateExit (animator, stateInfo, layerIndex);
 
-		var smao = new StateMachineActionObject () { Animator = animator, PathHash = stateInfo.fullPathHash };
+		if (animator.GetLayerWeight (layerIndex) <= 0f && layerIndex > 0) { return; }
+
+		var smao = new StateMachineActionObject () { Animator = animator, PathHash = stateInfo.fullPathHash, StateInfo = stateInfo, LayerIndex = layerIndex, State = AnimatorState.Exit };
 		foreach (var action in Actions)
 		{
 			action.Execute (smao);

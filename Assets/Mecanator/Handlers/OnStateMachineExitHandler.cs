@@ -8,7 +8,7 @@ public class OnStateMachineExitHandler : StateMachineHandler
 	{
 		base.OnStateMachineExit (animator, stateMachinePathHash);
 
-		var smao = new StateMachineActionObject () { Animator = animator, PathHash = stateMachinePathHash };
+		var smao = new StateMachineActionObject () { Animator = animator, PathHash = stateMachinePathHash, State = AnimatorState.Exit };
 		foreach (var action in Actions)
 		{
 			action.Execute (smao);
