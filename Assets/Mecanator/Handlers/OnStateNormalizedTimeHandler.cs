@@ -4,7 +4,11 @@ using UnityEngine;
 
 public class OnStateNormalizedTimeHandler : StateMachineHandler
 {
-	public float NormalizedTime;
+    [SerializeField]
+	private float NormalizedTime;
+    [SerializeField]
+    private bool IsLooped;
+
 	private bool emit = false;
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
@@ -13,9 +17,10 @@ public class OnStateNormalizedTimeHandler : StateMachineHandler
 
 		if (animator.GetLayerWeight (layerIndex) <= 0f && layerIndex > 0) { return; }
 
-		if (emit)
+        var normalizedTime = IsLooped ? stateInfo.normalizedTime % 1 : stateInfo.normalizedTime;
+        if (emit)
 		{
-			if (stateInfo.normalizedTime >= NormalizedTime)
+			if (normalizedTime >= NormalizedTime)
 			{
 				emit = false;
 
@@ -28,7 +33,7 @@ public class OnStateNormalizedTimeHandler : StateMachineHandler
 		}
 		else
 		{
-			if (stateInfo.normalizedTime < NormalizedTime)
+			if (normalizedTime < NormalizedTime)
 			{
 				emit = true;
 			}

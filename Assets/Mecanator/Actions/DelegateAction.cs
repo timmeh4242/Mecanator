@@ -4,5 +4,5 @@ using UnityEngine;
 
 public abstract class DelegateAction : ScriptableObject
 {
-	public abstract void Execute (StateMachineActionObject smao);
+	public abstract void Execute (object data);
 }

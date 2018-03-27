@@ -8,10 +8,6 @@ public class LogMessage : StateMachineAction
 
 	public override void Execute (StateMachineActionObject smao)
 	{
-//		Debug.Log (Message);
-		Debug.Log (smao.Animator.name);
-		Debug.Log (smao.LayerIndex);
-		Debug.Log (smao.PathHash);
-		Debug.Log (smao.StateInfo);
+		Debug.Log (Message);
 	}
 }
