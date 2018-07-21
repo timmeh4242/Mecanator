@@ -12,7 +12,6 @@ Mecanator is a simple set of tools that add visual scripting power to Mecanim. I
 - <a href="#quick_start">Quick Start</a>
 - <a href="#example_project">Example Project</a>
 - <a href="#dependencies">Dependencies</a>
-- <a href="#final_thoughts">Final Thoughts</a>
 
 
 ## <a id="introduction"></a>Introduction
@@ -105,17 +104,15 @@ You'll notice that this script uses OnStateMachineEnter to trigger when the stat
 
 ![image](https://gyazo.com/2675b9f16f5f00a08a8f1c11e7100508)
 
-## <a id="example_project"></a>Example Project
-COMING SOON
- <!-- - [Survival Shooter](https://github.com/tbriley/AlphaECS.SurvivalShooter) -->
+## <a id="example_project"></a>Example Projects
+- [2D Roguelike](https://github.com/tbriley/Mecanator.2DRoguelike)
 
 
 ## <a id="dependencies"></a>Dependencies
+- [UniRx](https://github.com/neuecc/UniRx)
+- [Editor Extensions](https://github.com/tbriley/EditorExtensions)
+- [Serializable Dictionary](https://github.com/azixMcAze/Unity-SerializableDictionary)
+- [Ranged Values](https://github.com/tbriley/RangedValues)
 
- - UniRx (required)
- <!-- - Zenject (optional) -->
-
-
-## <a id="final_thoughts"></a>Final Thoughts
-
-This was not designed with performance in mind. However, it should be performant enough for most scenarios, and given its reactive nature and decoupled design you can easily replace implementations at will. Lots of people love performance metrics, but I have none and have put performance secondary to functionality.
+## <a id="dependencies"></a>Optional
+- [AlphaECS](https://github.com/tbriley/AlphaECS)
