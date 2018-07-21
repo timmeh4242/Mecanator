@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using AlphaECS;
 using System;
 using System.Linq;
 using UniRx;
