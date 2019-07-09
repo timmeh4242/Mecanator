@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Unity.Entities;
+using System.Collections.Generic;
 
 [System.Serializable]
 public enum PlayType
@@ -11,7 +12,7 @@ public enum PlayType
 }
 
 [System.Serializable]
-public struct AudioOptions
+public struct AudioOptions : IComponentData
 {
 	public PlayType PlayType;
 	public float Delay;

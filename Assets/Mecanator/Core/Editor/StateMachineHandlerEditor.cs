@@ -30,7 +30,10 @@ public class StateMachineHandlerEditor : Editor
 
 	void OnEnable()
 	{
-		//hideFlags = HideFlags.HideAndDontSave;
+        //hideFlags = HideFlags.HideAndDontSave;
+
+        if(target == null)
+        { return; }
 
 		if (handler == null)
 		{ handler = (StateMachineHandler)target; }

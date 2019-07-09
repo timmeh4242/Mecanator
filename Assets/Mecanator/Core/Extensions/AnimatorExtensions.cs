@@ -19,7 +19,27 @@ public static partial class AnimatorExtensions
 		return animator.IsInTransition (animator.GetLayerIndex (layerName));
 	}
 
-	public static int State(this Animator animator, string layerName)
+    public static float GetCurrentClipLength(this Animator animator, string layerName)
+    {
+        return animator.GetCurrentClipLength(animator.GetLayerIndex(layerName));
+    }
+
+    public static float GetCurrentClipLength(this Animator animator, int layerIndex = 0)
+    {
+        return animator.GetCurrentAnimatorStateInfo(layerIndex).length;
+    }
+
+    public static float GetNextClipLength(this Animator animator, string layerName)
+    {
+        return animator.GetNextClipLength(animator.GetLayerIndex(layerName));
+    }
+
+    public static float GetNextClipLength(this Animator animator, int layerIndex = 0)
+    {
+        return animator.GetNextAnimatorStateInfo(layerIndex).length;
+    }
+
+    public static int State(this Animator animator, string layerName)
 	{
 		return animator.GetCurrentAnimatorStateInfo (animator.GetLayerIndex (layerName)).fullPathHash;
 	}

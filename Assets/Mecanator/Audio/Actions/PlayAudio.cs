@@ -1,44 +1,33 @@
-﻿#if AlphaECS
+﻿using Unity.Entities;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using AlphaECS;
-using Zenject;
 
 [System.Serializable]
 public class PlayAudio : StateMachineAction
 {
 	public string EventName;
-	private string eventName;
+	NativeString64 eventName;
 	public AudioOptions Options;
 
-	private AudioBehaviour audioBehaviour;
+	AudioBehaviour audioBehaviour;
 
-	private static IEventSystem EventSystem
-	{
-		get
-		{
-			if (eventSystem == null)
-			{
-				eventSystem = ProjectContext.Instance.Container.Resolve<IEventSystem> ();
-			}
-			return eventSystem;
-		}
-	}
-	private static IEventSystem eventSystem;
+    EntityEventSystem eventSystem;
+    EntityEventSystem EventSystem => eventSystem ?? (eventSystem = World.Active.GetOrCreateSystem<EntityEventSystem>());
 
     public override void Execute (StateMachineActionObject smao)
 	{
         audioBehaviour = smao.Animator.GetComponent<AudioBehaviour>();
         if (audioBehaviour != null)
         {
-            eventName = audioBehaviour.AudioPrefix + EventName + audioBehaviour.AudioSuffix;
+            eventName = new NativeString64(audioBehaviour.AudioPrefix + EventName + audioBehaviour.AudioSuffix);
         }
         else
         {
-            eventName = EventName;
+            eventName = new NativeString64(EventName);
         }
-		EventSystem.Publish (new AudioEvent () { EventName = eventName, Options = Options, Target = smao.Animator });
+        var gao = smao.Animator.GetComponent<GameObjectEntity>();
+        var target = gao != null ? gao.Entity : Entity.Null;
+		EventSystem.PublishData (new AudioEvent () { EventName = eventName, Options = Options, Target = target });
 	}
 }
-#endif

@@ -1,35 +1,30 @@
-﻿#if AlphaECS
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System;
-using AlphaECS;
-using Zenject;
+﻿//using UnityEngine;
+//using Unity.Entities;
+//using System;
 
-public class PublishEvent : StateMachineAction
-{
-	public string EventName = "";
 
-	protected IEventSystem EventSystem
-	{
-		get
-		{
-			if (eventSystem == null)
-			{
-				eventSystem = ProjectContext.Instance.Container.Resolve<IEventSystem> ();
-			}
-			return eventSystem;
-		}
-	}
-	private IEventSystem eventSystem;
+////TODO -> add support for building out list of IComponentDatas from inspector...
+////...see EntityBehaviourEditor for reference???
+//public class PublishEvent : StateMachineAction
+//{
+//    public string EventName = "";
 
-	public override void Execute (StateMachineActionObject smao)
-	{
-		base.Execute (smao);
+//    EntityEventSystem eventSystem;
+//    EntityEventSystem EventSystem => eventSystem ?? (eventSystem = World.Active.GetOrCreateSystem<EntityEventSystem>());
 
-		var type = Type.GetType (EventName);
-		var instance = Activator.CreateInstance (type);
-		EventSystem.Publish (instance);
-	}
-}
-#endif
+//    public override void Execute(StateMachineActionObject smao)
+//    {
+//        base.Execute(smao);
+
+//        var type = Type.GetType(EventName);
+//        if (!type.IsValueType || !typeof(IComponentData).IsAssignableFrom(type))
+//        {
+//            Debug.LogWarning("You can only publish IComponentData");
+//        }
+//        else
+//        {
+//            var instance = (IComponentData)Activator.CreateInstance(type);
+//            EventSystem.PublishData(instance);
+//        }
+//    }
+//}

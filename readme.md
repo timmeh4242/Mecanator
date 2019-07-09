@@ -12,7 +12,7 @@ Mecanator is a simple set of tools that add visual scripting power to Mecanim. I
 - <a href="#quick_start">Quick Start</a>
 - <a href="#example_project">Example Project</a>
 - <a href="#dependencies">Dependencies</a>
-
+- <a href="#todo">TODO</a>
 
 ## <a id="introduction"></a>Introduction
 Mecanim is a highly optimized and easy to use tool for prototyping and setting up simple animation logic for all sorts of different use cases. However as your project grows and as you require more complex logic, managing state between the visual scripting of Mecanim and actual code gets a bit painful. Adding simple things that really can and should live in a visual graph can often break your logic.
@@ -50,8 +50,9 @@ A hot topic these days. There are a number of good solutions with a number of di
 
 There's a great blog post here on [repurposing Unity's animator as a finite state machine](https://medium.com/the-unity-developers-handbook/dont-re-invent-finite-state-machines-how-to-repurpose-unity-s-animator-7c6c421e5785). Mecanator, at least at the start, won't try to do too many complex things. What it will aim for at the core is to start packing things that really don't need a lot of fancy logic into the animator itself. For example, one good pattern is to use nested states to hide complexity in the graph, especially in cases where you really need a de-coupled design. And also to use the default `Entry` and `Exit` nodes for going into and out of the substate. Maybe our human animator wants to set up a ShootingGun state machine with 3 nested substates, where each substate is a variation on a gunshot animation.
 
- ![image](https://gyazo.com/66c524c6cc6e78312e71fbe07ffc2b2a)
- ![image](https://gyazo.com/353b85ae731fb593902284af26ea7453)
+ ![image](https://user-images.githubusercontent.com/6376639/60857310-a3b81b00-a23c-11e9-8ac1-c9f80b188fc5.png)
+
+ ![image](https://user-images.githubusercontent.com/6376639/60857320-b599be00-a23c-11e9-92e5-fcaea65fbc65.png)
 
 
 We could make a bunch of different `StateMachineBehaviour` components for each type of action like this:
@@ -102,7 +103,8 @@ Add the SubStateSelector to any parent state machine, fill out the number of chi
 
 You'll notice that this script uses OnStateMachineEnter to trigger when the state machine node has been entered. We can imagine that there may be all sorts of things we might want to do when a state machine has been entered, exited, or some substate has been entered, exited, or updated. Any future scripts that use these same callbacks will lead to a `LOT` of duplicated code and a potentially really mess, difficult to understand inspector. With Mecanator we provide generic scripts for each one of the built-in Unity Mecanim callbacks (`OnStateMachineEnter`, `OnStateMachineExit`, `OnStateEnter`, `OnStateExit`, `OnStateUpdate`, etc). You then can add any number of included actions, or write your own simple actions, to tie into these events:
 
-![image](https://gyazo.com/2675b9f16f5f00a08a8f1c11e7100508)
+![image](https://user-images.githubusercontent.com/6376639/60857283-84b98900-a23c-11e9-8489-9dfcc18a0a7c.png)
+
 
 ## <a id="example_project"></a>Example Projects
 - [2D Roguelike](https://github.com/tbriley/Mecanator.2DRoguelike)
@@ -113,6 +115,12 @@ You'll notice that this script uses OnStateMachineEnter to trigger when the stat
 - [Editor Extensions](https://github.com/tbriley/EditorExtensions)
 - [Serializable Dictionary](https://github.com/azixMcAze/Unity-SerializableDictionary)
 - [Ranged Values](https://github.com/tbriley/RangedValues)
+- [Entity Event System](https://github.com/tbriley/EntityEventSystem)
+- [Reorderable Inspector](https://github.com/SubjectNerd-Unity/ReorderableInspector)
+- [DOTween](http://dotween.demigiant.com/download.php)
+- [Unity.Entities](https://docs.unity3d.com/Packages/com.unity.entities@0.0/manual/index.html)
 
-## <a id="dependencies"></a>Optional
-- [AlphaECS](https://github.com/tbriley/AlphaECS)
+
+## <a id="todo"></a>TODO
+- Move dependencies to UPM based system
+- Fix editor bugs so that it's easier for others to enjoy

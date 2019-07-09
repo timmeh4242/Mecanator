@@ -1,32 +1,17 @@
-﻿#if AlphaECS
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System;
-using AlphaECS;
-using Zenject;
+﻿using Unity.Entities;
 
 public class PublishState : StateMachineAction
 {
-	protected IEventSystem EventSystem
-	{
-		get
-		{
-			if (eventSystem == null)
-			{
-				eventSystem = ProjectContext.Instance.Container.Resolve<IEventSystem> ();
-			}
-			return eventSystem;
-		}
-	}
-	private IEventSystem eventSystem;
+    EntityEventSystem eventSystem;
+    EntityEventSystem EventSystem => eventSystem ?? (eventSystem = World.Active.GetOrCreateSystem<EntityEventSystem>());
 
-	public override void Execute (StateMachineActionObject smao)
+    public override void Execute (StateMachineActionObject smao)
 	{
 		base.Execute (smao);
 
-		var animatorStateEvent = new AnimatorStateEvent (smao.Animator, smao.PathHash, smao.StateInfo, smao.LayerIndex, smao.State);
-		EventSystem.Publish (animatorStateEvent);
+        var gao = smao.Animator.GetComponent<GameObjectEntity>();
+        var target = gao != null ? gao.Entity : Entity.Null;
+        var animatorStateEvent = new AnimatorStateEvent (target, smao.PathHash, smao.StateInfo, smao.LayerIndex, smao.State);
+		EventSystem.PublishData (animatorStateEvent);
 	}
 }
-#endif

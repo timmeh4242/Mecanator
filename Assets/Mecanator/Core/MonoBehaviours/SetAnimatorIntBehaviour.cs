@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
 using System;
-using System.Collections.Generic;
 
 public class SetAnimatorIntBehaviour : MonoBehaviour
 {

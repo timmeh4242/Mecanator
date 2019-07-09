@@ -1,15 +1,31 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using Unity.Entities;
 
-public class AnimationEventProxy
+public struct AnimationEventData : IComponentData
 {
-	public Animator Animator;
-	public AnimationEvent AnimationEvent;
+    public Entity Entity;
+    public NativeString64 StringParameter;
+    public float FloatParameter;
+    public int IntParameter;
 
-	public AnimationEventProxy(Animator animator, AnimationEvent animationEvent)
-	{
-		this.Animator = animator;
-		this.AnimationEvent = animationEvent;
-	}
+    public AnimationEventData(Entity entity, string stringParameter, float floatParameter, int intParameter)
+    {
+        Entity = entity;
+        StringParameter = new NativeString64(stringParameter);
+        FloatParameter = floatParameter;
+        IntParameter = intParameter;
+    }
 }
+
+//public class AnimationEventProxy
+//{
+//	public Animator Animator;
+//	public AnimationEvent AnimationEvent;
+
+//	public AnimationEventProxy(Animator animator, AnimationEvent animationEvent)
+//	{
+//		this.Animator = animator;
+//		this.AnimationEvent = animationEvent;
+//	}
+//}
+
+

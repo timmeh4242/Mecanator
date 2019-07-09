@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using Unity.Entities;
 
-public class AudioEvent
+public struct AudioEvent : IComponentData
 {
-	public string EventName { get; set; }
-	public AudioOptions Options { get; set; }
-	public Animator Target { get; set; }
+    public NativeString64 EventName;
+    public AudioOptions Options;
+    public Entity Target;
 }
